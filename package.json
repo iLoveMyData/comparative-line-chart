@@ -8,8 +8,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/iLoveMyData"
+    "url": "https://github.com/iLoveMyData/comparative-line-chart.git"
   },
+  "bugs": {
+    "url": "https://github.com/iLoveMyData/comparative-line-chart/issues"
+  },
+  "homepage": "https://github.com/iLoveMyData/comparative-line-chart#readme",
   "license": "MIT",
   "scripts": {
     "pbiviz": "pbiviz",

@@ -6,8 +6,8 @@
     "visualClassName": "Visual",
     "version": "1.0.0.0",
     "description": "Dual cumulative line chart with an interactive comparison-range selector. Compare two measures over time, drag handles to isolate any sub-period, and read the delta in a fully customisable side panel. Rich per-series data labels with collision-avoidance.",
-    "supportUrl": "https://github.com/iLoveMyData",
-    "gitHubUrl": "https://github.com/iLoveMyData"
+    "supportUrl": "https://github.com/iLoveMyData/comparative-line-chart/issues",
+    "gitHubUrl": "https://github.com/iLoveMyData/comparative-line-chart"
   },
   "apiVersion": "5.11.0",
   "author": {
