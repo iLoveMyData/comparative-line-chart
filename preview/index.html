@@ -1,0 +1,805 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<title>ComparativeLineChart — Preview</title>
+<script src="./d3.min.js"></script>
+<style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');</style>
+<style>
+:root{
+  --c-actual:#F0477A; --c-forecast:#7E45FF;
+  --c-grid:#EFEFF6; --c-sep:#E2E2EF;
+  --c-title:#0E1336; --c-muted:#8A8AAA;
+  --c-zone:#DCDCEA; --c-delim:#14162E;
+  --c-tt-bg:#14162E; --c-tt-text:#FFFFFF;
+  --c-dp:#24C38E; --c-dn:#F0477A;
+  --c-panel-val:#0E1336; --c-panel-lbl:#8A8AAA; --c-panel-head:#0E1336; --c-panel-sep:#E2E2EF;
+  --toggle-off:#E2E2EF; --toggle-on:#7E45FF;
+  --toggle-pill-w:46px; --toggle-pill-h:24px; --toggle-thumb:20px;
+  --toggle-label:#8A8AAA; --toggle-label-on:#7E45FF; --toggle-lbl-sz:13px;
+  --drop-border:#E2E2EF; --drop-bg:#fff; --drop-text:#0E1336;
+  --drop-radius:99px; --drop-font:13px; --drop-pad-v:5px; --drop-pad-h:12px;
+  --sz-title:26px; --sz-legend:14px; --sz-xaxis:12px; --sz-yaxis:12px;
+  --sz-tt:13px; --sz-panel-head:21px; --sz-panel-val:30px; --sz-panel-lbl:14px; --sz-panel-delta:24px;
+  --tt-radius:10px; --zone-opacity:.55;
+  --stroke-actual:3; --stroke-forecast:3;
+  --delim-w:1.5; --marker-r:5.5; --marker-sw:2.5;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:'Inter',system-ui,sans-serif;background:#F2F2F8;color:var(--c-title);-webkit-font-smoothing:antialiased}
+body{display:flex;flex-direction:column;align-items:center;padding:28px 16px;gap:20px}
+.app{width:1340px;max-width:100%}
+
+/* ── ACCORDION CONFIG ── */
+.cfg-card{background:#fff;border-radius:18px;box-shadow:0 8px 40px -12px rgba(14,19,54,.10);overflow:hidden}
+.cfg-header{padding:18px 24px;border-bottom:1px solid var(--c-sep);display:flex;align-items:center;gap:12px}
+.cfg-header h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--c-muted)}
+.cfg-header .badge{font-size:11px;font-weight:600;color:var(--c-forecast);background:#F0EAFF;padding:3px 9px;border-radius:99px}
+.acc-section{border-bottom:1px solid var(--c-sep)}
+.acc-section:last-child{border-bottom:none}
+.acc-btn{width:100%;display:flex;align-items:center;gap:10px;padding:13px 24px;background:none;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;color:var(--c-title);text-align:left;transition:background .15s}
+.acc-btn:hover{background:#FAFAFD}
+.acc-btn .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.acc-btn .chevron{margin-left:auto;width:16px;height:16px;color:var(--c-muted);transition:transform .2s;flex-shrink:0}
+.acc-section.open .chevron{transform:rotate(180deg)}
+.acc-body{max-height:0;overflow:hidden;transition:max-height .28s cubic-bezier(.4,0,.2,1)}
+.acc-section.open .acc-body{max-height:600px}
+.acc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 18px;padding:16px 24px 20px}
+.acc-grid.cols-3{grid-template-columns:repeat(3,1fr)}
+.acc-grid.cols-5{grid-template-columns:repeat(5,1fr)}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--c-muted)}
+.field input[type=text],.field input[type=number],.field select{padding:7px 10px;border:1.5px solid #E2E2EF;border-radius:9px;font-size:12.5px;font-family:inherit;color:var(--c-title);background:#fff;transition:border-color .15s,box-shadow .15s;width:100%}
+.field input:focus,.field select:focus{outline:none;border-color:var(--c-forecast);box-shadow:0 0 0 3px rgba(126,69,255,.10)}
+.color-row{display:flex;align-items:center;gap:7px}
+.color-row input[type=color]{width:32px;height:32px;border:1.5px solid #E2E2EF;border-radius:8px;cursor:pointer;padding:2px;background:#fff;flex-shrink:0}
+.color-row .hex{font-size:11px;font-family:ui-monospace,monospace;color:var(--c-muted);letter-spacing:.03em}
+.range-row{display:flex;align-items:center;gap:8px}
+.range-row input[type=range]{flex:1;accent-color:var(--c-forecast)}
+.range-row .range-val{font-size:11px;color:var(--c-muted);min-width:24px;text-align:right}
+.field input[type=checkbox]{width:16px;height:16px;accent-color:var(--c-forecast);cursor:pointer}
+.checkbox-row{display:flex;align-items:center;gap:8px;padding-top:16px}
+.checkbox-row label{font-size:13px;font-weight:500;color:var(--c-title);text-transform:none;letter-spacing:0}
+
+/* ── VISUAL CARD ── */
+.vis-card{background:#fff;border-radius:18px;box-shadow:0 8px 40px -12px rgba(14,19,54,.10);padding:32px 40px}
+.vis-title{font-size:var(--sz-title);font-weight:800;color:var(--c-title);letter-spacing:-.01em;margin-bottom:18px}
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;min-height:50px;gap:12px}
+.left-zone{display:flex;flex-direction:column;gap:10px}
+.legend{display:flex;align-items:center;gap:24px}
+.leg-item{display:flex;align-items:center;gap:8px;font-size:var(--sz-legend);color:var(--c-muted);font-weight:500}
+.leg-swatch{width:13px;height:13px;border-radius:4px;flex-shrink:0}
+.summarize{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:500;color:var(--c-title)}
+.drop{position:relative;display:inline-flex;align-items:center;gap:5px;border:1.5px solid var(--drop-border);border-radius:var(--drop-radius);padding:var(--drop-pad-v) var(--drop-pad-h);min-width:66px;cursor:pointer;font-size:var(--drop-font);font-weight:600;color:var(--drop-text);background:var(--drop-bg);transition:border-color .15s,box-shadow .15s;justify-content:center}
+.drop:hover{border-color:var(--c-forecast);box-shadow:0 0 0 3px rgba(126,69,255,.08)}
+.drop .dv{pointer-events:none}
+.drop svg{pointer-events:none;color:var(--c-muted);transition:color .15s}
+.drop:hover svg{color:var(--c-forecast)}
+.drop select{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:16px}
+
+/* ── TOGGLE ── */
+.toggle{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;font-size:var(--toggle-lbl-sz);font-weight:600;color:var(--toggle-label);transition:color .25s}
+.toggle.on{color:var(--toggle-label-on)}
+.toggle .pill{position:relative;width:var(--toggle-pill-w);height:var(--toggle-pill-h);border-radius:99px;background:var(--toggle-off);transition:background .28s cubic-bezier(.4,0,.2,1);flex-shrink:0;box-shadow:inset 0 1px 3px rgba(14,19,54,.13)}
+.toggle.on .pill{background:var(--toggle-on)}
+.toggle .thumb{position:absolute;top:2px;left:2px;width:var(--toggle-thumb);height:var(--toggle-thumb);border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(14,19,54,.22);transition:left .28s cubic-bezier(.34,1.56,.64,1)}
+.toggle.on .thumb{left:calc(var(--toggle-pill-w) - var(--toggle-thumb) - 2px)}
+/* icons in empty side of pill */
+.toggle .pill .icn{position:absolute;top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;transition:opacity .18s;pointer-events:none}
+.toggle .pill .icn-x{right:3px;opacity:1;color:rgba(138,138,170,.85)}
+.toggle .pill .icn-ok{left:3px;opacity:0;color:#fff}
+.toggle.on .pill .icn-x{opacity:0}
+.toggle.on .pill .icn-ok{opacity:1}
+
+/* ── CHART ── */
+.chart-wrap{display:flex;gap:0;align-items:stretch}
+.chart{flex:1;min-width:0}
+svg.plot{width:100%;height:460px;display:block;overflow:visible}
+.grid line{stroke:var(--c-grid)}
+.grid path{display:none}
+.axis-x text{fill:var(--c-muted);font-size:var(--sz-xaxis);font-weight:500;font-family:'Inter',system-ui,sans-serif}
+.axis-y text{fill:var(--c-muted);font-size:var(--sz-yaxis);font-weight:500;font-family:'Inter',system-ui,sans-serif}
+.axis-x path,.axis-x line,.axis-y path,.axis-y line{stroke:var(--c-grid)}
+.zone{fill:var(--c-zone);opacity:var(--zone-opacity)}
+.delim{stroke:var(--c-delim);stroke-width:var(--delim-w)}
+.line{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.line.actual{stroke:var(--c-actual);stroke-width:var(--stroke-actual)}
+.line.forecast{stroke:var(--c-forecast);stroke-width:var(--stroke-forecast)}
+.line.dashed{stroke-dasharray:8 11}
+.marker{fill:#fff;stroke-width:var(--marker-sw)}
+.marker.actual{stroke:var(--c-actual)}
+.marker.forecast{stroke:var(--c-forecast)}
+.tt-line{stroke:rgba(14,19,54,.35);stroke-width:1.5;stroke-dasharray:4 4}
+.tt-bubble rect{fill:var(--c-tt-bg)}
+.tt-bubble text{fill:var(--c-tt-text);font-size:var(--sz-tt);font-weight:600;font-family:'Inter',system-ui,sans-serif}
+.tt-tail{fill:var(--c-tt-bg)}
+.hit{fill:transparent;pointer-events:all;cursor:crosshair}
+
+/* ── PANEL ── */
+.panel{width:256px;flex-shrink:0;border-left:1px solid var(--c-panel-sep);padding:2px 0 2px 30px;display:flex;flex-direction:column;transform:translateX(16px);opacity:0;transition:opacity .3s ease,transform .3s cubic-bezier(.25,.8,.25,1)}
+.panel.show{transform:translateX(0);opacity:1}
+.panel h2{font-size:var(--sz-panel-head);font-weight:700;color:var(--c-panel-head);letter-spacing:-.01em;margin-bottom:20px}
+.panel .blk{padding:12px 0;border-bottom:1px solid var(--c-panel-sep)}
+.panel .blk:last-child{border-bottom:none}
+.panel .lbl{font-size:var(--sz-panel-lbl);color:var(--c-panel-lbl);margin-bottom:5px;font-weight:500}
+.panel .val{font-size:var(--sz-panel-val);font-weight:800;color:var(--c-panel-val);letter-spacing:-.02em;font-variant-numeric:tabular-nums;transition:color .3s}
+.panel .delta-row{display:flex;align-items:center;gap:9px;font-size:var(--sz-panel-delta);font-weight:800;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+
+/* ── COUNTER ANIMATION ── */
+@keyframes blip{0%{opacity:.4}50%{opacity:1}100%{opacity:.4}}
+.counting{animation:blip .5s linear infinite}
+</style>
+</head>
+<body><div class="app">
+
+<!-- ─── CONFIG CARD ─── -->
+<div class="cfg-card" id="cfg-card">
+  <div class="cfg-header">
+    <h2>Formatting Pane — Power BI</h2>
+    <span class="badge">Tout personnalisable</span>
+  </div>
+</div>
+
+<!-- ─── VISUAL CARD ─── -->
+<div class="vis-card">
+  <div class="vis-title" id="v-title"></div>
+  <div class="topbar">
+    <div class="left-zone" id="left-zone"></div>
+    <div class="toggle" id="toggle">
+      <span class="pill">
+        <span class="icn icn-ok"><svg width="16" height="16" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.5L4.3 7.8L9 3"/></svg></span>
+        <span class="icn icn-x"><svg width="15" height="15" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M2.5 2.5L7.5 7.5M7.5 2.5L2.5 7.5"/></svg></span>
+        <span class="thumb"></span>
+      </span>
+      <span>Comparison</span>
+    </div>
+  </div>
+  <div class="chart-wrap">
+    <div class="chart"><svg class="plot" id="plot"></svg></div>
+    <aside class="panel" id="panel">
+      <h2 id="pan-head"></h2>
+      <div class="blk"><div class="lbl" id="pan-lbl1"></div><div class="val" id="pan-val1">—</div></div>
+      <div class="blk"><div class="lbl" id="pan-lbl2"></div><div class="val" id="pan-val2">—</div></div>
+      <div class="blk"><div class="lbl" id="pan-lbl3"></div><div class="delta-row" id="pan-delta"><span id="pan-arr"></span><span id="pan-dv">—</span></div></div>
+    </aside>
+  </div>
+</div>
+
+</div><!-- .app -->
+<script>
+// ═══════════════════════════════════════════════════════════
+// DATA — cumulative running totals
+// actual[7] - actual[3] = 5 880 000 - 2 450 000 = 3 430 000 ✓
+// forecast[7] - forecast[3] = 6 060 000 - 2 380 000 = 3 680 000 ✓
+// ═══════════════════════════════════════════════════════════
+const DATA = {
+  labels:   [1,2,3,4,5,6,7,8,9,10,11,12],
+  actual:   [450000,980000,1650000,2450000,3290000,4250000,5160000,5880000,6780000,null,null,null],
+  forecast: [250000,800000,1570000,2380000,3270000,4310000,5250000,6060000,7000000,7910000,8790000,9650000],
+};
+
+// ═══════════════════════════════════════════════════════════
+// CONFIG STATE
+// ═══════════════════════════════════════════════════════════
+const C = {
+  // Data
+  nameActual:'Actual to date', nameForecast:'Forecast', currentPeriod:9,
+  // Title
+  titleText:'Actual to date vs forecast', titleShow:true, titleSize:26,
+  titleColor:'#0E1336', titleWeight:'800',
+  // Legend
+  legendShow:true, legendSize:14, legendColor:'#8A8AAA',
+  // Series
+  colorActual:'#F0477A', colorForecast:'#7E45FF',
+  strokeActual:3, strokeForecast:3,
+  dashLen:8, dashGap:11,
+  curveType:'monotone',
+  // Axes
+  xAxisShow:true, xAxisSize:12, xAxisColor:'#8A8AAA',
+  yAxisShow:true, yAxisSize:12, yAxisColor:'#8A8AAA', yTicks:8,
+  gridShow:true, gridColor:'#EFEFF6', gridOpacity:1,
+  // Tooltip
+  ttBg:'#14162E', ttText:'#FFFFFF', ttSize:13, ttRadius:10,
+  // Comparison zone
+  zoneColor:'#DCDCEA', zoneOpacity:0.55,
+  delimColor:'#14162E', delimWidth:1.5,
+  markerR:5.5, markerSW:2.5,
+  // Panel
+  panelShow:true, panelHeadText:'Over this period',
+  panelHeadSize:21, panelHeadColor:'#0E1336',
+  panelValSize:30, panelValColor:'#0E1336',
+  panelLblSize:14, panelLblColor:'#8A8AAA',
+  panelDeltaSize:24, panelSepColor:'#E2E2EF',
+  colorDeltaPos:'#24C38E', colorDeltaNeg:'#F0477A',
+  lblDelta:'Delta',
+  // Format
+  unit:1000000, decimals:0, locale:'fr-FR',
+  // Toggle
+  toggleBgOff:'#E2E2EF', toggleBgOn:'#7E45FF',
+  togglePillW:46, togglePillH:24, toggleThumbSize:20,
+  toggleLabelColor:'#8A8AAA', toggleLabelColorOn:'#7E45FF', toggleLabelSize:13,
+  // Dropdowns
+  dropBorder:'#E2E2EF', dropBg:'#ffffff', dropText:'#0E1336',
+  dropRadius:99, dropFontSize:13, dropPaddingV:5, dropPaddingH:12,
+  // Anim
+  animEnabled:true, animDuration:1200,
+};
+const S = { comparison:true, from:4, to:8, firstRender:true,
+            _panPrev:{acc:0,exp:0,delta:0} };
+
+// ═══════════════════════════════════════════════════════════
+// SCHEMA for config panel
+// ═══════════════════════════════════════════════════════════
+const SCHEMA = [
+  { label:'Séries & courbes', dot:'#7E45FF', open:true, fields:[
+    {type:'text',   label:'Nom mesure 1', key:'nameActual'},
+    {type:'text',   label:'Nom mesure 2', key:'nameForecast'},
+    {type:'select', label:'Courbe', key:'curveType', opts:{monotone:'Smooth',natural:'Natural',catmull:'Catmull-Rom',linear:'Linear',step:'Step After'}},
+    {type:'number', label:'Current period', key:'currentPeriod', min:1, max:12, step:1},
+    {type:'color',  label:'Couleur mesure 1', key:'colorActual'},
+    {type:'color',  label:'Couleur mesure 2', key:'colorForecast'},
+    {type:'range',  label:'Épaisseur ligne 1', key:'strokeActual', min:1, max:8, step:.5},
+    {type:'range',  label:'Épaisseur ligne 2', key:'strokeForecast', min:1, max:8, step:.5},
+    {type:'range',  label:'Longueur tiret', key:'dashLen', min:2, max:20, step:1},
+    {type:'range',  label:'Espace tiret', key:'dashGap', min:2, max:20, step:1},
+  ]},
+  { label:'Titre', dot:'#F0477A', open:false, fields:[
+    {type:'check',  label:'Afficher', key:'titleShow'},
+    {type:'text',   label:'Texte', key:'titleText'},
+    {type:'color',  label:'Couleur', key:'titleColor'},
+    {type:'range',  label:'Taille', key:'titleSize', min:14, max:48, step:1},
+    {type:'select', label:'Graisse', key:'titleWeight', opts:{400:'Regular',600:'Semi-bold',700:'Bold',800:'Extra-bold',900:'Black'}},
+  ]},
+  { label:'Légende', dot:'#24C38E', open:false, fields:[
+    {type:'check',  label:'Afficher', key:'legendShow'},
+    {type:'color',  label:'Couleur texte', key:'legendColor'},
+    {type:'range',  label:'Taille texte', key:'legendSize', min:10, max:20, step:1},
+  ]},
+  { label:'Axes & grille', dot:'#F59E0B', open:false, fields:[
+    {type:'check',  label:'Axe X visible', key:'xAxisShow'},
+    {type:'color',  label:'Couleur axe X', key:'xAxisColor'},
+    {type:'range',  label:'Taille texte X', key:'xAxisSize', min:8, max:18, step:1},
+    {type:'check',  label:'Axe Y visible', key:'yAxisShow'},
+    {type:'color',  label:'Couleur axe Y', key:'yAxisColor'},
+    {type:'range',  label:'Taille texte Y', key:'yAxisSize', min:8, max:18, step:1},
+    {type:'range',  label:'Nb graduations Y', key:'yTicks', min:3, max:14, step:1},
+    {type:'check',  label:'Grille visible', key:'gridShow'},
+    {type:'color',  label:'Couleur grille', key:'gridColor'},
+    {type:'range',  label:'Opacité grille', key:'gridOpacity', min:0, max:1, step:.05},
+  ]},
+  { label:'Tooltip', dot:'#14162E', open:false, fields:[
+    {type:'color',  label:'Fond', key:'ttBg'},
+    {type:'color',  label:'Texte', key:'ttText'},
+    {type:'range',  label:'Taille texte', key:'ttSize', min:10, max:18, step:1},
+    {type:'range',  label:'Rayon bordure', key:'ttRadius', min:4, max:20, step:1},
+  ]},
+  { label:'Mode Comparaison', dot:'#8B5CF6', open:false, fields:[
+    {type:'color',  label:'Couleur zone', key:'zoneColor'},
+    {type:'range',  label:'Opacité zone', key:'zoneOpacity', min:0, max:1, step:.05},
+    {type:'color',  label:'Couleur délimiteur', key:'delimColor'},
+    {type:'range',  label:'Épaisseur délimiteur', key:'delimWidth', min:.5, max:4, step:.5},
+    {type:'range',  label:'Taille marker (r)', key:'markerR', min:2, max:10, step:.5},
+    {type:'range',  label:'Épaisseur marker', key:'markerSW', min:1, max:5, step:.5},
+  ]},
+  { label:'Panneau latéral', dot:'#EF4444', open:false, fields:[
+    {type:'check',  label:'Afficher panneau', key:'panelShow'},
+    {type:'text',   label:'Titre panneau', key:'panelHeadText'},
+    {type:'color',  label:'Couleur titre', key:'panelHeadColor'},
+    {type:'range',  label:'Taille titre', key:'panelHeadSize', min:14, max:32, step:1},
+    {type:'color',  label:'Couleur valeurs', key:'panelValColor'},
+    {type:'range',  label:'Taille valeurs', key:'panelValSize', min:18, max:48, step:1},
+    {type:'color',  label:'Couleur libellés', key:'panelLblColor'},
+    {type:'range',  label:'Taille libellés', key:'panelLblSize', min:10, max:20, step:1},
+    {type:'range',  label:'Taille delta', key:'panelDeltaSize', min:14, max:40, step:1},
+    {type:'color',  label:'Delta positif', key:'colorDeltaPos'},
+    {type:'color',  label:'Delta négatif', key:'colorDeltaNeg'},
+    {type:'color',  label:'Séparateurs', key:'panelSepColor'},
+    {type:'text',   label:'Libellé Delta', key:'lblDelta'},
+  ]},
+  { label:'Toggle de comparaison', dot:'#A78BFA', open:false, fields:[
+    {type:'color',  label:'Fond inactif', key:'toggleBgOff'},
+    {type:'color',  label:'Fond actif', key:'toggleBgOn'},
+    {type:'range',  label:'Largeur pill (px)', key:'togglePillW', min:36, max:70, step:2},
+    {type:'range',  label:'Hauteur pill (px)', key:'togglePillH', min:18, max:36, step:2},
+    {type:'range',  label:'Taille thumb (px)', key:'toggleThumbSize', min:12, max:28, step:2},
+    {type:'color',  label:'Couleur label', key:'toggleLabelColor'},
+    {type:'color',  label:'Couleur label actif', key:'toggleLabelColorOn'},
+    {type:'range',  label:'Taille label', key:'toggleLabelSize', min:10, max:18, step:1},
+  ]},
+  { label:'Sélecteurs de période', dot:'#0EA5E9', open:false, fields:[
+    {type:'color',  label:'Bordure', key:'dropBorder'},
+    {type:'color',  label:'Fond', key:'dropBg'},
+    {type:'color',  label:'Texte', key:'dropText'},
+    {type:'range',  label:'Rayon bordure', key:'dropRadius', min:4, max:99, step:1},
+    {type:'range',  label:'Taille texte', key:'dropFontSize', min:10, max:18, step:1},
+    {type:'range',  label:'Padding vertical', key:'dropPaddingV', min:2, max:12, step:1},
+    {type:'range',  label:'Padding horizontal', key:'dropPaddingH', min:6, max:24, step:1},
+  ]},
+  { label:'Format des nombres', dot:'#06B6D4', open:false, fields:[
+    {type:'select', label:'Unité', key:'unit', opts:{'1':'Aucune','1000':'K — Milliers','1000000':'M — Millions','1000000000':'B — Milliards'}},
+    {type:'number', label:'Décimales', key:'decimals', min:0, max:4, step:1},
+    {type:'select', label:'Locale', key:'locale', opts:{'fr-FR':'fr-FR (1 234,5)','en-US':'en-US (1,234.5)','de-DE':'de-DE (1.234,5)','es-ES':'es-ES'}},
+  ]},
+  { label:'Animations', dot:'#F97316', open:false, fields:[
+    {type:'check',  label:'Activer animations', key:'animEnabled'},
+    {type:'range',  label:'Durée (ms)', key:'animDuration', min:300, max:2500, step:100},
+  ]},
+];
+
+// ═══════════════════════════════════════════════════════════
+// BUILD CONFIG UI
+// ═══════════════════════════════════════════════════════════
+function buildConfig(){
+  const card = document.getElementById('cfg-card');
+  SCHEMA.forEach(sec=>{
+    const div = document.createElement('div');
+    div.className = 'acc-section' + (sec.open?' open':'');
+    div.innerHTML = `
+      <button class="acc-btn">
+        <span class="dot" style="background:${sec.dot}"></span>
+        <span>${sec.label}</span>
+        <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg>
+      </button>
+      <div class="acc-body"><div class="acc-grid" id="grid-${sec.label.replace(/\W/g,'_')}"></div></div>`;
+    card.appendChild(div);
+    div.querySelector('.acc-btn').addEventListener('click',()=>div.classList.toggle('open'));
+    const grid = div.querySelector('.acc-grid');
+    sec.fields.forEach(f=> grid.appendChild(buildField(f)));
+  });
+}
+
+function buildField(f){
+  const wrap = document.createElement('div');
+  wrap.className = 'field';
+  const val = C[f.key];
+  if(f.type==='color'){
+    wrap.innerHTML = `<label>${f.label}</label>
+      <div class="color-row">
+        <input type="color" id="f_${f.key}" value="${val}"/>
+        <span class="hex" id="hex_${f.key}">${val.toUpperCase()}</span>
+      </div>`;
+    wrap.querySelector('input').addEventListener('input',e=>{
+      C[f.key]=e.target.value;
+      document.getElementById(`hex_${f.key}`).textContent=e.target.value.toUpperCase();
+      applyCSSVars(); render({animate:false});
+    });
+  } else if(f.type==='range'){
+    wrap.innerHTML = `<label>${f.label}</label>
+      <div class="range-row">
+        <input type="range" id="f_${f.key}" min="${f.min}" max="${f.max}" step="${f.step}" value="${val}"/>
+        <span class="range-val" id="rv_${f.key}">${val}</span>
+      </div>`;
+    wrap.querySelector('input').addEventListener('input',e=>{
+      C[f.key]=Number(e.target.value);
+      document.getElementById(`rv_${f.key}`).textContent=e.target.value;
+      applyCSSVars(); render({animate:false});
+    });
+  } else if(f.type==='select'){
+    const opts = Object.entries(f.opts).map(([v,l])=>`<option value="${v}"${String(val)===String(v)?' selected':''}>${l}</option>`).join('');
+    wrap.innerHTML = `<label>${f.label}</label><select id="f_${f.key}">${opts}</select>`;
+    wrap.querySelector('select').addEventListener('change',e=>{
+      C[f.key]=e.target.value;
+      applyCSSVars(); render({animate:false});
+    });
+  } else if(f.type==='number'){
+    wrap.innerHTML = `<label>${f.label}</label><input type="number" id="f_${f.key}" min="${f.min}" max="${f.max}" step="${f.step||1}" value="${val}"/>`;
+    wrap.querySelector('input').addEventListener('input',e=>{
+      C[f.key]=Number(e.target.value);
+      applyCSSVars(); render({animate:false});
+    });
+  } else if(f.type==='text'){
+    wrap.innerHTML = `<label>${f.label}</label><input type="text" id="f_${f.key}" value="${val}"/>`;
+    wrap.querySelector('input').addEventListener('input',e=>{
+      C[f.key]=e.target.value; render({animate:false});
+    });
+  } else if(f.type==='check'){
+    wrap.innerHTML = `<div class="checkbox-row"><input type="checkbox" id="f_${f.key}"${val?' checked':''}/><label for="f_${f.key}">${f.label}</label></div>`;
+    wrap.querySelector('input').addEventListener('change',e=>{
+      C[f.key]=e.target.checked; applyCSSVars(); render({animate:false});
+    });
+  }
+  return wrap;
+}
+
+// ═══════════════════════════════════════════════════════════
+// CSS VARS
+// ═══════════════════════════════════════════════════════════
+function applyCSSVars(){
+  const r = document.documentElement.style;
+  r.setProperty('--c-actual', C.colorActual);
+  r.setProperty('--c-forecast', C.colorForecast);
+  r.setProperty('--c-grid', C.gridColor);
+  r.setProperty('--c-zone', C.zoneColor);
+  r.setProperty('--c-delim', C.delimColor);
+  r.setProperty('--c-tt-bg', C.ttBg);
+  r.setProperty('--c-tt-text', C.ttText);
+  r.setProperty('--c-panel-val', C.panelValColor);
+  r.setProperty('--c-panel-lbl', C.panelLblColor);
+  r.setProperty('--c-panel-head', C.panelHeadColor);
+  r.setProperty('--c-panel-sep', C.panelSepColor);
+  r.setProperty('--sz-title', C.titleSize+'px');
+  r.setProperty('--sz-legend', C.legendSize+'px');
+  r.setProperty('--sz-xaxis', C.xAxisSize+'px');
+  r.setProperty('--sz-yaxis', C.yAxisSize+'px');
+  r.setProperty('--sz-tt', C.ttSize+'px');
+  r.setProperty('--sz-panel-head', C.panelHeadSize+'px');
+  r.setProperty('--sz-panel-val', C.panelValSize+'px');
+  r.setProperty('--sz-panel-lbl', C.panelLblSize+'px');
+  r.setProperty('--sz-panel-delta', C.panelDeltaSize+'px');
+  r.setProperty('--tt-radius', C.ttRadius+'px');
+  r.setProperty('--zone-opacity', C.zoneOpacity);
+  r.setProperty('--stroke-actual', C.strokeActual);
+  r.setProperty('--stroke-forecast', C.strokeForecast);
+  r.setProperty('--delim-w', C.delimWidth);
+  r.setProperty('--marker-r', C.markerR);
+  r.setProperty('--marker-sw', C.markerSW);
+  r.setProperty('--c-muted', C.yAxisColor);
+  r.setProperty('--grid-opacity', C.gridShow ? C.gridOpacity : 0);
+  r.setProperty('--toggle-off', C.toggleBgOff);
+  r.setProperty('--toggle-on', C.toggleBgOn);
+  r.setProperty('--toggle-pill-w', C.togglePillW+'px');
+  r.setProperty('--toggle-pill-h', C.togglePillH+'px');
+  r.setProperty('--toggle-thumb', C.toggleThumbSize+'px');
+  r.setProperty('--toggle-label', C.toggleLabelColor);
+  r.setProperty('--toggle-label-on', C.toggleLabelColorOn);
+  r.setProperty('--toggle-lbl-sz', C.toggleLabelSize+'px');
+  r.setProperty('--drop-border', C.dropBorder);
+  r.setProperty('--drop-bg', C.dropBg);
+  r.setProperty('--drop-text', C.dropText);
+  r.setProperty('--drop-radius', C.dropRadius+'px');
+  r.setProperty('--drop-font', C.dropFontSize+'px');
+  r.setProperty('--drop-pad-v', C.dropPaddingV+'px');
+  r.setProperty('--drop-pad-h', C.dropPaddingH+'px');
+}
+
+// ═══════════════════════════════════════════════════════════
+// FORMAT
+// ═══════════════════════════════════════════════════════════
+const FMT = {
+  val(v){ if(v==null||isNaN(v)) return '—';
+    const u=Number(C.unit); const d=u&&u!==1?v/u:v;
+    const sfx=u===1000?' K':u===1000000?' M':u===1000000000?' B':'';
+    return d.toLocaleString(C.locale,{minimumFractionDigits:+C.decimals,maximumFractionDigits:+C.decimals})+sfx; },
+  axis(v){ if(v==null||isNaN(v)) return '';
+    const u=Number(C.unit); const d=u&&u!==1?v/u:v;
+    const sfx=u===1000?' K':u===1000000?' M':u===1000000000?' B':'';
+    const dec=Number.isInteger(d)?0:1;
+    return d.toLocaleString(C.locale,{minimumFractionDigits:0,maximumFractionDigits:dec})+sfx;
+  },
+  pct(v){ return v.toLocaleString(C.locale,{minimumFractionDigits:1,maximumFractionDigits:1})+'%'; },
+};
+function curve(){ return {monotone:d3.curveMonotoneX,natural:d3.curveNatural,catmull:d3.curveCatmullRom.alpha(0.5),linear:d3.curveLinear,step:d3.curveStepAfter}[C.curveType]||d3.curveMonotoneX; }
+function lo(){ return Math.min(S.from,S.to); }
+function hi(){ return Math.max(S.from,S.to); }
+
+// ═══════════════════════════════════════════════════════════
+// COUNTER ANIMATION
+// ═══════════════════════════════════════════════════════════
+function animNum(el, fromV, toV, dur, fmt){
+  if(!C.animEnabled || !dur){ el.textContent=fmt(toV); return; }
+  const t0=performance.now();
+  const span=Math.max(Math.abs(toV-fromV), Math.abs(toV)*.25, 1);
+  // Scale-pop entry
+  el.style.transition='transform .2s cubic-bezier(.34,1.56,.64,1)';
+  el.style.transform='scale(1.12)';
+  setTimeout(()=>{ el.style.transform='scale(1)'; }, 220);
+  function step(){
+    const p=Math.min(1,(performance.now()-t0)/dur);
+    const ease=1-Math.pow(1-p,4); // quartic ease-out
+    // Drum-roll: random noise decays over first 65%
+    const noise=p<0.65?(Math.random()-.5)*span*.38*(1-p/.65):0;
+    el.textContent=fmt(fromV+(toV-fromV)*ease+noise);
+    if(p<1) setTimeout(step,16);
+    else el.textContent=fmt(toV);
+  }
+  setTimeout(step,16);
+}
+
+// ═══════════════════════════════════════════════════════════
+// TOP BAR
+// ═══════════════════════════════════════════════════════════
+function renderTopBar(){
+  const host=document.getElementById('left-zone'); host.innerHTML='';
+  if(S.comparison){
+    const w=document.createElement('div'); w.className='summarize';
+    w.innerHTML=`<span>Summarize from</span>
+      <span class="drop"><span class="dv">${S.from}</span>
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 4l3 3 3-3"/></svg>
+        <select id="sel-from">${DATA.labels.map(v=>`<option${v===S.from?' selected':''}>${v}</option>`).join('')}</select></span>
+      <span>to</span>
+      <span class="drop"><span class="dv">${S.to}</span>
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 4l3 3 3-3"/></svg>
+        <select id="sel-to">${DATA.labels.map(v=>`<option${v===S.to?' selected':''}>${v}</option>`).join('')}</select></span>`;
+    host.appendChild(w);
+    document.getElementById('sel-from').onchange=e=>{S.from=+e.target.value; render({animate:false});};
+    document.getElementById('sel-to').onchange=e=>{S.to=+e.target.value; render({animate:false});};
+  }
+  if(C.legendShow){
+    const leg=document.createElement('div'); leg.className='legend';
+    leg.innerHTML=`<div class="leg-item"><span class="leg-swatch" style="background:${C.colorActual}"></span>${esc(C.nameActual)}</div>
+      <div class="leg-item"><span class="leg-swatch" style="background:${C.colorForecast}"></span>${esc(C.nameForecast)}</div>`;
+    host.appendChild(leg);
+  }
+}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);}
+
+// ═══════════════════════════════════════════════════════════
+// PANEL — end-start calculation
+// ═══════════════════════════════════════════════════════════
+function renderPanel(animate){
+  const el=document.getElementById('panel');
+  const show=S.comparison&&C.panelShow;
+  el.style.display=show?'flex':'none';
+  setTimeout(()=>el.classList.toggle('show',show),10);
+  if(!show) return;
+
+  const L=lo(), H=hi();
+  // Cumulative: end minus start. When from=1, start=0 (beginning of year, nothing yet accomplished)
+  const accStart=(L<=1)?0:(DATA.actual[L-1]??0), accEnd=DATA.actual[H-1]??0;
+  const expStart=(L<=1)?0:(DATA.forecast[L-1]??0), expEnd=DATA.forecast[H-1]??0;
+  const acc=accEnd-accStart, exp=expEnd-expStart;
+  const delta=acc-exp;
+  const pct=exp===0?0:(delta/exp)*100;
+  const p=S._panPrev;
+
+  document.getElementById('pan-head').textContent=C.panelHeadText;
+  document.getElementById('pan-lbl1').textContent=C.nameActual;
+  document.getElementById('pan-lbl2').textContent=C.nameForecast;
+  document.getElementById('pan-lbl3').textContent=C.lblDelta;
+
+  const dur=animate&&C.animEnabled?700:0;
+  animNum(document.getElementById('pan-val1'), p.acc, acc, dur, FMT.val);
+  animNum(document.getElementById('pan-val2'), p.exp, exp, dur, FMT.val);
+  animNum(document.getElementById('pan-dv'), p.delta, Math.abs(delta), dur,
+    v=>`${delta<0?'':'+'}${FMT.val(v)} (${FMT.pct(Math.abs(pct))})`);
+
+  const neg=delta<0, col=neg?C.colorDeltaNeg:C.colorDeltaPos;
+  const dr=document.getElementById('pan-delta'); dr.style.color=col;
+  document.getElementById('pan-arr').innerHTML=neg
+    ?`<svg width="15" height="15" viewBox="0 0 14 14"><path d="M1 3L13 3L7 12Z" fill="${col}"/></svg>`
+    :`<svg width="15" height="15" viewBox="0 0 14 14"><path d="M1 11L13 11L7 2Z" fill="${col}"/></svg>`;
+
+  p.acc=acc; p.exp=exp; p.delta=delta;
+}
+
+// ═══════════════════════════════════════════════════════════
+// CHART
+// ═══════════════════════════════════════════════════════════
+function renderChart(opts){
+  const svg=d3.select('#plot'); svg.selectAll('*').remove();
+  const rc=svg.node().getBoundingClientRect();
+  const svgW=rc.width||800, svgH=rc.height||460;
+  const M={top:14,right:20,bottom:34,left:70};
+  const iw=svgW-M.left-M.right, ih=svgH-M.top-M.bottom;
+  const defs=svg.append('defs');
+  const g=svg.append('g').attr('transform',`translate(${M.left},${M.top})`);
+
+  const x=d3.scaleLinear().domain([1,12]).range([0,iw]);
+  const allVals=[...DATA.actual,...DATA.forecast].filter(v=>v!=null);
+  const ymax=d3.max(allVals)*1.12;
+  const y=d3.scaleLinear().domain([0,ymax]).nice().range([ih,0]);
+
+  // ── GRID (background)
+  if(C.gridShow){
+    const grid=g.append('g').attr('class','grid')
+      .call(d3.axisLeft(y).tickSize(-iw).tickFormat('').ticks(C.yTicks));
+    grid.selectAll('line').attr('stroke',C.gridColor).attr('opacity',C.gridOpacity);
+    grid.select('.domain').remove();
+  }
+
+  // ── Y AXIS
+  if(C.yAxisShow){
+    const ya=g.append('g').attr('class','axis-y')
+      .call(d3.axisLeft(y).ticks(C.yTicks).tickFormat(FMT.axis));
+    ya.selectAll('text').attr('fill',C.yAxisColor).style('font-size',C.yAxisSize+'px');
+    ya.selectAll('.domain,.tick line').remove();
+  }
+
+  // ── X AXIS
+  if(C.xAxisShow){
+    const xa=g.append('g').attr('class','axis-x').attr('transform',`translate(0,${ih})`)
+      .call(d3.axisBottom(x).ticks(12).tickFormat(d3.format('d')).tickSize(0).tickPadding(10));
+    xa.selectAll('text').attr('fill',C.xAxisColor).style('font-size',C.xAxisSize+'px');
+    xa.select('.domain').remove();
+  }
+
+  // line generator
+  const lineFn=d3.line().defined(d=>d.y!=null).x(d=>x(d.x)).y(d=>y(d.y)).curve(curve());
+  const aPts=DATA.labels.map((L,i)=>({x:L,y:DATA.actual[i]}));
+  const fPts=DATA.labels.map((L,i)=>({x:L,y:DATA.forecast[i]}));
+  const dActual=lineFn(aPts), dForecast=lineFn(fPts);
+
+  // Solid regions
+  const cur=C.currentPeriod, L=lo(), H=hi();
+  const solidA = S.comparison ? [L,H] : [1,12];
+  const solidF = S.comparison ? [L,Math.min(H,cur)] : [1,cur];
+
+  function clipSolid(id,[a,b]){
+    const xl=Math.max(-2,x(a)-1), xr=Math.min(iw+2,x(b)+1);
+    defs.append('clipPath').attr('id',id).append('rect')
+      .attr('x',xl).attr('y',-4).attr('width',Math.max(0,xr-xl)).attr('height',ih+8);
+  }
+  clipSolid('clip-sa', solidA);
+  clipSolid('clip-sf', solidF);
+
+  // ── Z-ORDER LAYER 1: Zone grise (expands from center when animating)
+  const gZone=g.append('g').attr('class','zone-layer');
+  if(S.comparison){
+    const zx=x(L), zw=x(H)-x(L), zmid=zx+zw/2;
+    const zr=gZone.append('rect').attr('class','zone').attr('y',0).attr('height',ih);
+    if(C.animEnabled&&opts.animate){
+      zr.attr('x',zmid).attr('width',0)
+        .transition().duration(C.animDuration*.6).ease(d3.easeCubicOut)
+        .attr('x',zx).attr('width',zw);
+    } else {
+      zr.attr('x',zx).attr('width',zw);
+    }
+  }
+
+  // ── Z-ORDER LAYER 2: Delimiter lines (BEHIND curves)
+  const gDelim=g.append('g').attr('class','delim-layer');
+  if(S.comparison){
+    [L,H].forEach(pos=>{
+      gDelim.append('line').attr('class','delim')
+        .attr('x1',x(pos)).attr('x2',x(pos)).attr('y1',0).attr('y2',ih)
+        .attr('stroke',C.delimColor).attr('stroke-width',C.delimWidth);
+    });
+  }
+
+  // ── Z-ORDER LAYER 3: Lines (reveal animation clip wraps both layers)
+  const revealId='clip-reveal';
+  const revealRect=defs.append('clipPath').attr('id',revealId).append('rect')
+    .attr('x',-2).attr('y',-4).attr('height',ih+8)
+    .attr('width', (C.animEnabled && opts.animate) ? 0 : iw+4);
+
+  const gLines=g.append('g').attr('clip-path',`url(#${revealId})`);
+
+  // Dashed underlay (full path, clipped by reveal)
+  gLines.append('path').attr('class','line actual dashed').attr('d',dActual)
+    .attr('stroke',C.colorActual).attr('stroke-width',C.strokeActual)
+    .attr('stroke-dasharray',`${C.dashLen} ${C.dashGap}`);
+  // Solid overlay (clipped to solid region AND reveal)
+  gLines.append('path').attr('class','line actual').attr('d',dActual)
+    .attr('stroke',C.colorActual).attr('stroke-width',C.strokeActual)
+    .attr('clip-path','url(#clip-sa)');
+
+  gLines.append('path').attr('class','line forecast dashed').attr('d',dForecast)
+    .attr('stroke',C.colorForecast).attr('stroke-width',C.strokeForecast)
+    .attr('stroke-dasharray',`${C.dashLen} ${C.dashGap}`);
+  gLines.append('path').attr('class','line forecast').attr('d',dForecast)
+    .attr('stroke',C.colorForecast).attr('stroke-width',C.strokeForecast)
+    .attr('clip-path','url(#clip-sf)');
+
+  // Reveal animation (grows rect from 0 → iw)
+  if(C.animEnabled && opts.animate){
+    revealRect.transition().duration(C.animDuration).ease(d3.easePolyOut.exponent(4))
+      .attr('width', iw+4);
+  }
+
+  // ── Z-ORDER LAYER 4: Boundary markers — scale in after reveal
+  if(S.comparison){
+    const mDelay=C.animEnabled&&opts.animate?C.animDuration*.72:0;
+    const mDur=C.animEnabled&&opts.animate?300:0;
+    [L,H].forEach(pos=>{
+      const i=pos-1;
+      if(DATA.actual[i]!=null){
+        const m=g.append('circle').attr('class','marker actual')
+          .attr('cx',x(pos)).attr('cy',y(DATA.actual[i]))
+          .attr('stroke',C.colorActual).attr('stroke-width',C.markerSW);
+        if(mDur>0) m.attr('r',0).transition().delay(mDelay).duration(mDur).ease(d3.easeBackOut.overshoot(2.2)).attr('r',C.markerR);
+        else m.attr('r',C.markerR);
+      }
+      if(DATA.forecast[i]!=null){
+        const m=g.append('circle').attr('class','marker forecast')
+          .attr('cx',x(pos)).attr('cy',y(DATA.forecast[i]))
+          .attr('stroke',C.colorForecast).attr('stroke-width',C.markerSW);
+        if(mDur>0) m.attr('r',0).transition().delay(mDelay).duration(mDur).ease(d3.easeBackOut.overshoot(2.2)).attr('r',C.markerR);
+        else m.attr('r',C.markerR);
+      }
+    });
+  }
+
+  // ── TOOLTIP focus group (above everything)
+  const focus=g.append('g').style('pointer-events','none').style('opacity',0);
+  const ttLine=focus.append('line').attr('class','tt-line').attr('y1',0).attr('y2',ih);
+  const dotA=focus.append('circle').attr('class','marker actual').attr('r',C.markerR)
+    .attr('stroke',C.colorActual).attr('stroke-width',C.markerSW);
+  const dotF=focus.append('circle').attr('class','marker forecast').attr('r',C.markerR)
+    .attr('stroke',C.colorForecast).attr('stroke-width',C.markerSW);
+
+  const BW=152, BH=64, BR=C.ttRadius;
+  const bubble=focus.append('g').attr('class','tt-bubble');
+  bubble.append('rect').attr('rx',BR).attr('ry',BR).attr('width',BW).attr('height',BH)
+    .attr('x',-BW/2).attr('y',-BH-16).attr('fill',C.ttBg);
+  bubble.append('path').attr('class','tt-tail').attr('fill',C.ttBg)
+    .attr('d','M-7,-16 L7,-16 L0,-8 Z');
+  const rF=bubble.append('g').attr('transform',`translate(${-BW/2+14},${-BH-16+22})`);
+  rF.append('circle').attr('r',4).attr('fill',C.colorForecast);
+  const tF=rF.append('text').attr('x',12).attr('y',5).attr('fill',C.ttText).style('font-size',C.ttSize+'px');
+  const rA=bubble.append('g').attr('transform',`translate(${-BW/2+14},${-BH-16+44})`);
+  rA.append('circle').attr('r',4).attr('fill',C.colorActual);
+  const tA=rA.append('text').attr('x',12).attr('y',5).attr('fill',C.ttText).style('font-size',C.ttSize+'px');
+
+  let lastX=-1;
+  function showTT(xv){
+    if(xv===lastX) return; lastX=xv;
+    const i=xv-1; const a=DATA.actual[i], f=DATA.forecast[i];
+    const xp=x(xv);
+    // INSTANT — no transition
+    ttLine.attr('x1',xp).attr('x2',xp);
+    if(a!=null){ dotA.attr('cx',xp).attr('cy',y(a)).style('display',null); } else dotA.style('display','none');
+    if(f!=null){ dotF.attr('cx',xp).attr('cy',y(f)).style('display',null); } else dotF.style('display','none');
+    const anchorY=f!=null?y(f):(a!=null?y(a):ih/2);
+    // Nudge bubble to stay inside chart
+    const nudge=Math.max(0,BW/2+4-xp)+Math.min(0,iw-xp-BW/2-4);
+    bubble.attr('transform',`translate(${xp},${anchorY})`);
+    bubble.select('rect').attr('x',-BW/2+nudge);
+    rF.attr('transform',`translate(${-BW/2+14+nudge},${-BH-16+22})`);
+    rA.attr('transform',`translate(${-BW/2+14+nudge},${-BH-16+44})`);
+    tF.text(FMT.val(f)); tA.text(FMT.val(a));
+    focus.style('opacity',1);
+  }
+  function hideTT(){ lastX=-1; focus.transition().duration(160).style('opacity',0); }
+
+  // HIT RECT
+  g.append('rect').attr('class','hit').attr('x',0).attr('y',0).attr('width',iw).attr('height',ih)
+    .on('mousemove',function(ev){ const [mx]=d3.pointer(ev,this); showTT(Math.max(1,Math.min(12,Math.round(x.invert(mx))))); })
+    .on('mouseleave', hideTT);
+
+  // Show tooltip at current period by default (normal mode)
+  if(!S.comparison && opts.animate===false) showTT(Math.min(cur,9));
+
+  // ── DRAG HANDLES (topmost layer)
+  if(S.comparison){
+    [{k:'from',v:L},{k:'to',v:H}].forEach(h=>{
+      const hg=g.append('g').style('cursor','ew-resize');
+      // drag hit area only — no visual triangle
+      hg.append('rect')
+        .attr('x',x(h.v)-10).attr('y',-2).attr('width',20).attr('height',ih+4)
+        .attr('fill','transparent');
+      hg.call(d3.drag()
+        .on('start',()=>hideTT())
+        .on('drag',function(ev){
+          const xv=Math.max(1,Math.min(12,Math.round(x.invert(ev.x))));
+          if(xv===(h.k==='from'?S.to:S.from)) return;
+          S[h.k]=xv; render({animate:false});
+        }));
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// MAIN RENDER
+// ═══════════════════════════════════════════════════════════
+function render(opts={animate:false}){
+  // Title
+  const titleEl=document.getElementById('v-title');
+  titleEl.textContent=C.titleText;
+  titleEl.style.display=C.titleShow?'':'none';
+  titleEl.style.color=C.titleColor;
+  titleEl.style.fontWeight=C.titleWeight;
+
+  renderTopBar();
+  document.getElementById('toggle').classList.toggle('on',S.comparison);
+  renderPanel(opts.animate||S.firstRender);
+  renderChart({animate:opts.animate||S.firstRender});
+  S.firstRender=false;
+}
+
+document.getElementById('toggle').addEventListener('click',()=>{
+  S.comparison=!S.comparison; render({animate:true});
+});
+
+let _rsz=null;
+window.addEventListener('resize',()=>{ clearTimeout(_rsz); _rsz=setTimeout(()=>render({animate:false}),80); });
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+buildConfig();
+applyCSSVars();
+// Defer render so browser has time to layout SVG (getBoundingClientRect needs paint pass)
+setTimeout(()=> render({animate:true}), 50);
+</script>
+</body>
+</html>

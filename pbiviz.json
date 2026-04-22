@@ -1,0 +1,28 @@
+{
+  "visual": {
+    "name": "ComparativeLineChart",
+    "displayName": "Comparative Line Chart",
+    "guid": "comparativeLineChartC1A9F7E84D3B4ABE8C0F2E6D91A3B5C7E",
+    "visualClassName": "Visual",
+    "version": "1.0.0.0",
+    "description": "Dual cumulative line chart with an interactive comparison-range selector. Compare two measures over time, drag handles to isolate any sub-period, and read the delta in a fully customisable side panel. Rich per-series data labels with collision-avoidance.",
+    "supportUrl": "https://github.com/iLoveMyData",
+    "gitHubUrl": "https://github.com/iLoveMyData"
+  },
+  "apiVersion": "5.11.0",
+  "author": {
+    "name": "Sammy KARAR",
+    "email": "karar.sammy@outlook.fr"
+  },
+  "assets": {
+    "icon": "assets/icon.png"
+  },
+  "externalJS": null,
+  "style": "style/visual.less",
+  "capabilities": "capabilities.json",
+  "dependencies": null,
+  "stringResources": [
+    "stringResources/en-US/resources.resjson",
+    "stringResources/fr-FR/resources.resjson"
+  ]
+}

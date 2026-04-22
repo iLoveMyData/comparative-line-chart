@@ -1,0 +1,343 @@
+{
+  "dataRoles": [
+    {
+      "name": "category",
+      "kind": "Grouping",
+      "displayName": "Period",
+      "displayNameKey": "Role_Category"
+    },
+    {
+      "name": "actual",
+      "kind": "Measure",
+      "displayName": "Series A (auto-cumulated)",
+      "displayNameKey": "Role_Actual",
+      "requiredTypes": [{ "numeric": true }, { "integer": true }]
+    },
+    {
+      "name": "forecast",
+      "kind": "Measure",
+      "displayName": "Series B (auto-cumulated)",
+      "displayNameKey": "Role_Forecast",
+      "requiredTypes": [{ "numeric": true }, { "integer": true }]
+    }
+  ],
+  "dataViewMappings": [
+    {
+      "conditions": [
+        {
+          "category": { "max": 1 },
+          "actual":   { "max": 1 },
+          "forecast": { "max": 1 }
+        }
+      ],
+      "categorical": {
+        "categories": {
+          "for": { "in": "category" },
+          "dataReductionAlgorithm": { "top": { "count": 1000 } }
+        },
+        "values": {
+          "select": [
+            { "bind": { "to": "actual"   } },
+            { "bind": { "to": "forecast" } }
+          ]
+        }
+      }
+    }
+  ],
+  "objects": {
+    "title": {
+      "displayName": "Title",
+      "displayNameKey": "Obj_Title",
+      "properties": {
+        "show":          { "displayName": "Show",         "displayNameKey": "Prop_Show",          "type": { "bool": true } },
+        "text":          { "displayName": "Text",         "displayNameKey": "Prop_Text",          "type": { "text": true } },
+        "color":         { "displayName": "Color",        "displayNameKey": "Prop_Color",         "type": { "fill": { "solid": { "color": true } } } },
+        "fontFamily":    { "displayName": "Font family",  "displayNameKey": "Prop_FontFamily",    "type": { "formatting": { "fontFamily": true } } },
+        "fontSize":      { "displayName": "Size",         "displayNameKey": "Prop_FontSize",      "type": { "numeric": true } },
+        "fontBold":      { "displayName": "Bold",         "displayNameKey": "Prop_Bold",          "type": { "bool": true } },
+        "fontItalic":    { "displayName": "Italic",       "displayNameKey": "Prop_Italic",        "type": { "bool": true } },
+        "fontUnderline": { "displayName": "Underline",    "displayNameKey": "Prop_Underline",     "type": { "bool": true } },
+        "align":         { "displayName": "Alignment",    "displayNameKey": "Prop_Align",         "type": { "enumeration": [
+          { "value": "left",   "displayName": "Left"   },
+          { "value": "center", "displayName": "Center" },
+          { "value": "right",  "displayName": "Right"  }
+        ]}}
+      }
+    },
+    "series": {
+      "displayName": "Series & curves",
+      "displayNameKey": "Obj_Series",
+      "properties": {
+        "nameActual":     { "displayName": "Series A label (override)",   "displayNameKey": "Prop_NameActual",    "type": { "text": true } },
+        "nameForecast":   { "displayName": "Series B label (override)",   "displayNameKey": "Prop_NameForecast",  "type": { "text": true } },
+        "curveType":      { "displayName": "Curve",                       "displayNameKey": "Prop_CurveType",     "type": { "enumeration": [
+          { "value": "monotone", "displayName": "Smooth (monotone)" },
+          { "value": "natural",  "displayName": "Natural"           },
+          { "value": "catmull",  "displayName": "Catmull-Rom"       },
+          { "value": "linear",   "displayName": "Linear"            },
+          { "value": "step",     "displayName": "Step after"        }
+        ]}},
+        "colorActual":    { "displayName": "Series A color",   "displayNameKey": "Prop_ColorActual",   "type": { "fill": { "solid": { "color": true } } } },
+        "colorForecast":  { "displayName": "Series B color",   "displayNameKey": "Prop_ColorForecast", "type": { "fill": { "solid": { "color": true } } } },
+        "strokeActual":   { "displayName": "Series A stroke",  "displayNameKey": "Prop_StrokeActual",  "type": { "numeric": true } },
+        "strokeForecast": { "displayName": "Series B stroke",  "displayNameKey": "Prop_StrokeForecast","type": { "numeric": true } },
+        "lineOpacity":    { "displayName": "Line opacity",     "displayNameKey": "Prop_LineOpacity",   "type": { "numeric": true } },
+        "dashLen":        { "displayName": "Dash length",      "displayNameKey": "Prop_DashLen",       "type": { "numeric": true } },
+        "dashGap":        { "displayName": "Dash gap",         "displayNameKey": "Prop_DashGap",       "type": { "numeric": true } }
+      }
+    },
+    "legend": {
+      "displayName": "Legend",
+      "displayNameKey": "Obj_Legend",
+      "properties": {
+        "show":          { "displayName": "Show",         "displayNameKey": "Prop_Show",          "type": { "bool": true } },
+        "color":         { "displayName": "Color",        "displayNameKey": "Prop_Color",         "type": { "fill": { "solid": { "color": true } } } },
+        "fontFamily":    { "displayName": "Font family",  "displayNameKey": "Prop_FontFamily",    "type": { "formatting": { "fontFamily": true } } },
+        "fontSize":      { "displayName": "Size",         "displayNameKey": "Prop_FontSize",      "type": { "numeric": true } },
+        "fontBold":      { "displayName": "Bold",         "displayNameKey": "Prop_Bold",          "type": { "bool": true } },
+        "fontItalic":    { "displayName": "Italic",       "displayNameKey": "Prop_Italic",        "type": { "bool": true } },
+        "fontUnderline": { "displayName": "Underline",    "displayNameKey": "Prop_Underline",     "type": { "bool": true } },
+        "swatchSize":    { "displayName": "Swatch size",  "displayNameKey": "Prop_SwatchSize",    "type": { "numeric": true } }
+      }
+    },
+    "axes": {
+      "displayName": "Axes & grid",
+      "displayNameKey": "Obj_Axes",
+      "properties": {
+        "xShow":        { "displayName": "X axis",       "displayNameKey": "Prop_XShow",       "type": { "bool": true } },
+        "xColor":       { "displayName": "X color",      "displayNameKey": "Prop_XColor",      "type": { "fill": { "solid": { "color": true } } } },
+        "xSize":        { "displayName": "X text size",  "displayNameKey": "Prop_XSize",       "type": { "numeric": true } },
+        "yShow":        { "displayName": "Y axis",       "displayNameKey": "Prop_YShow",       "type": { "bool": true } },
+        "yColor":       { "displayName": "Y color",      "displayNameKey": "Prop_YColor",      "type": { "fill": { "solid": { "color": true } } } },
+        "ySize":        { "displayName": "Y text size",  "displayNameKey": "Prop_YSize",       "type": { "numeric": true } },
+        "yTicks":       { "displayName": "Y ticks",      "displayNameKey": "Prop_YTicks",      "type": { "numeric": true } },
+        "gridShow":     { "displayName": "Grid",         "displayNameKey": "Prop_GridShow",    "type": { "bool": true } },
+        "gridColor":    { "displayName": "Grid color",   "displayNameKey": "Prop_GridColor",   "type": { "fill": { "solid": { "color": true } } } },
+        "gridOpacity":  { "displayName": "Grid opacity", "displayNameKey": "Prop_GridOpacity", "type": { "numeric": true } },
+        "fontFamily":   { "displayName": "Font family",  "displayNameKey": "Prop_FontFamily",  "type": { "formatting": { "fontFamily": true } } },
+        "fontBold":     { "displayName": "Bold",         "displayNameKey": "Prop_Bold",        "type": { "bool": true } },
+        "fontItalic":   { "displayName": "Italic",       "displayNameKey": "Prop_Italic",      "type": { "bool": true } },
+        "padTop":       { "displayName": "Top padding",  "displayNameKey": "Prop_PadTop",      "type": { "numeric": true } },
+        "padRight":     { "displayName": "Right padding","displayNameKey": "Prop_PadRight",    "type": { "numeric": true } },
+        "padBottom":    { "displayName": "Bottom padding","displayNameKey": "Prop_PadBottom",  "type": { "numeric": true } },
+        "padLeft":      { "displayName": "Left padding", "displayNameKey": "Prop_PadLeft",     "type": { "numeric": true } }
+      }
+    },
+    "tooltipStyle": {
+      "displayName": "Tooltip",
+      "displayNameKey": "Obj_Tooltip",
+      "properties": {
+        "bg":         { "displayName": "Background",   "displayNameKey": "Prop_TtBg",       "type": { "fill": { "solid": { "color": true } } } },
+        "text":       { "displayName": "Text color",   "displayNameKey": "Prop_TtText",     "type": { "fill": { "solid": { "color": true } } } },
+        "fontFamily": { "displayName": "Font family",  "displayNameKey": "Prop_FontFamily", "type": { "formatting": { "fontFamily": true } } },
+        "size":       { "displayName": "Text size",    "displayNameKey": "Prop_TtSize",     "type": { "numeric": true } },
+        "fontBold":   { "displayName": "Bold",         "displayNameKey": "Prop_Bold",       "type": { "bool": true } },
+        "fontItalic": { "displayName": "Italic",       "displayNameKey": "Prop_Italic",     "type": { "bool": true } },
+        "radius":     { "displayName": "Radius",       "displayNameKey": "Prop_TtRadius",   "type": { "numeric": true } }
+      }
+    },
+    "comparison": {
+      "displayName": "Comparison mode",
+      "displayNameKey": "Obj_Comparison",
+      "properties": {
+        "enabled":     { "displayName": "Enable comparison mode", "displayNameKey": "Prop_CompEnabled", "type": { "bool": true } },
+        "zoneColor":   { "displayName": "Zone color",     "displayNameKey": "Prop_ZoneColor",   "type": { "fill": { "solid": { "color": true } } } },
+        "zoneOpacity": { "displayName": "Zone opacity",   "displayNameKey": "Prop_ZoneOpacity", "type": { "numeric": true } },
+        "delimColor":  { "displayName": "Delimiter color","displayNameKey": "Prop_DelimColor",  "type": { "fill": { "solid": { "color": true } } } },
+        "delimWidth":  { "displayName": "Delimiter width","displayNameKey": "Prop_DelimWidth",  "type": { "numeric": true } },
+        "delimStyle":  { "displayName": "Delimiter style","displayNameKey": "Prop_DelimStyle",  "type": { "enumeration": [
+          { "value": "solid",  "displayName": "Solid"  },
+          { "value": "dashed", "displayName": "Dashed" },
+          { "value": "dotted", "displayName": "Dotted" }
+        ]}}
+      }
+    },
+    "markers": {
+      "displayName": "Markers",
+      "displayNameKey": "Obj_Markers",
+      "properties": {
+        "markerR":  { "displayName": "Marker radius", "displayNameKey": "Prop_MarkerR",  "type": { "numeric": true } },
+        "markerSW": { "displayName": "Marker stroke", "displayNameKey": "Prop_MarkerSW", "type": { "numeric": true } }
+      }
+    },
+    "panel": {
+      "displayName": "Side panel",
+      "displayNameKey": "Obj_Panel",
+      "properties": {
+        "show":          { "displayName": "Show panel",    "displayNameKey": "Prop_Show",          "type": { "bool": true } },
+        "headText":      { "displayName": "Title",         "displayNameKey": "Prop_HeadText",      "type": { "text": true } },
+        "headColor":     { "displayName": "Title color",   "displayNameKey": "Prop_HeadColor",     "type": { "fill": { "solid": { "color": true } } } },
+        "headSize":      { "displayName": "Title size",    "displayNameKey": "Prop_HeadSize",      "type": { "numeric": true } },
+        "valColor":      { "displayName": "Value color",   "displayNameKey": "Prop_ValColor",      "type": { "fill": { "solid": { "color": true } } } },
+        "valSize":       { "displayName": "Value size",    "displayNameKey": "Prop_ValSize",       "type": { "numeric": true } },
+        "lblColor":      { "displayName": "Label color",   "displayNameKey": "Prop_LblColor",      "type": { "fill": { "solid": { "color": true } } } },
+        "lblSize":       { "displayName": "Label size",    "displayNameKey": "Prop_LblSize",       "type": { "numeric": true } },
+        "deltaSize":     { "displayName": "Delta size",    "displayNameKey": "Prop_DeltaSize",     "type": { "numeric": true } },
+        "colorPos":      { "displayName": "Delta positive","displayNameKey": "Prop_ColorPos",      "type": { "fill": { "solid": { "color": true } } } },
+        "colorNeg":      { "displayName": "Delta negative","displayNameKey": "Prop_ColorNeg",      "type": { "fill": { "solid": { "color": true } } } },
+        "sepColor":      { "displayName": "Separators",    "displayNameKey": "Prop_SepColor",      "type": { "fill": { "solid": { "color": true } } } },
+        "lblDelta":      { "displayName": "Delta label",   "displayNameKey": "Prop_LblDelta",      "type": { "text": true } },
+        "fontFamily":    { "displayName": "Font family",   "displayNameKey": "Prop_FontFamily",    "type": { "formatting": { "fontFamily": true } } },
+        "fontItalic":    { "displayName": "Italic",        "displayNameKey": "Prop_Italic",        "type": { "bool": true } },
+        "fontUnderline": { "displayName": "Underline",     "displayNameKey": "Prop_Underline",     "type": { "bool": true } },
+        "widthPct":      { "displayName": "Width (%)",     "displayNameKey": "Prop_PanelWidthPct", "type": { "numeric": true } },
+        "bgColor":       { "displayName": "Background",    "displayNameKey": "Prop_PanelBg",       "type": { "fill": { "solid": { "color": true } } } },
+        "radius":        { "displayName": "Radius",        "displayNameKey": "Prop_PanelRadius",   "type": { "numeric": true } },
+        "padding":       { "displayName": "Padding",       "displayNameKey": "Prop_PanelPadding",  "type": { "numeric": true } }
+      }
+    },
+    "toggle": {
+      "displayName": "Comparison toggle",
+      "displayNameKey": "Obj_Toggle",
+      "properties": {
+        "showLabel":     { "displayName": "Show label",     "displayNameKey": "Prop_ToggleShowLabel", "type": { "bool": true } },
+        "globalScale":   { "displayName": "Global scale (%)","displayNameKey": "Prop_ToggleScale",    "type": { "numeric": true } },
+        "radius":        { "displayName": "Pill radius",    "displayNameKey": "Prop_ToggleRadius",   "type": { "numeric": true } },
+        "label":         { "displayName": "Label",          "displayNameKey": "Prop_ToggleLabel",    "type": { "text": true } },
+        "bgOff":         { "displayName": "Background off", "displayNameKey": "Prop_BgOff",          "type": { "fill": { "solid": { "color": true } } } },
+        "bgOn":          { "displayName": "Background on",  "displayNameKey": "Prop_BgOn",           "type": { "fill": { "solid": { "color": true } } } },
+        "pillW":         { "displayName": "Pill width",     "displayNameKey": "Prop_PillW",          "type": { "numeric": true } },
+        "pillH":         { "displayName": "Pill height",    "displayNameKey": "Prop_PillH",          "type": { "numeric": true } },
+        "thumb":         { "displayName": "Thumb size",     "displayNameKey": "Prop_ThumbSize",      "type": { "numeric": true } },
+        "labelColor":    { "displayName": "Label color (off)", "displayNameKey": "Prop_LabelColor",  "type": { "fill": { "solid": { "color": true } } } },
+        "labelColorOn":  { "displayName": "Label color (on)",  "displayNameKey": "Prop_LabelColorOn","type": { "fill": { "solid": { "color": true } } } },
+        "labelSize":     { "displayName": "Label size",     "displayNameKey": "Prop_LabelSize",      "type": { "numeric": true } },
+        "fontFamily":    { "displayName": "Font family",    "displayNameKey": "Prop_FontFamily",     "type": { "formatting": { "fontFamily": true } } },
+        "fontBold":      { "displayName": "Bold",           "displayNameKey": "Prop_Bold",           "type": { "bool": true } },
+        "fontItalic":    { "displayName": "Italic",         "displayNameKey": "Prop_Italic",         "type": { "bool": true } },
+        "fontUnderline": { "displayName": "Underline",      "displayNameKey": "Prop_Underline",      "type": { "bool": true } }
+      }
+    },
+    "dropdowns": {
+      "displayName": "Period selectors",
+      "displayNameKey": "Obj_Dropdowns",
+      "properties": {
+        "showLabel":        { "displayName": "Show label",        "displayNameKey": "Prop_DropShowLabel",     "type": { "bool": true } },
+        "label":            { "displayName": "Label",             "displayNameKey": "Prop_DropLabel",         "type": { "text": true } },
+        "border":           { "displayName": "Border",            "displayNameKey": "Prop_DropBorder",        "type": { "fill": { "solid": { "color": true } } } },
+        "bg":               { "displayName": "Background",        "displayNameKey": "Prop_DropBg",            "type": { "fill": { "solid": { "color": true } } } },
+        "text":             { "displayName": "Text",              "displayNameKey": "Prop_DropText",          "type": { "fill": { "solid": { "color": true } } } },
+        "radius":           { "displayName": "Radius",            "displayNameKey": "Prop_DropRadius",        "type": { "numeric": true } },
+        "fontFamily":       { "displayName": "Font family",       "displayNameKey": "Prop_FontFamily",        "type": { "formatting": { "fontFamily": true } } },
+        "fontSize":         { "displayName": "Text size",         "displayNameKey": "Prop_DropFontSize",      "type": { "numeric": true } },
+        "fontBold":         { "displayName": "Bold",              "displayNameKey": "Prop_Bold",              "type": { "bool": true } },
+        "fontItalic":       { "displayName": "Italic",            "displayNameKey": "Prop_Italic",            "type": { "bool": true } },
+        "padV":             { "displayName": "Padding Y",         "displayNameKey": "Prop_DropPadV",          "type": { "numeric": true } },
+        "padH":             { "displayName": "Padding X",         "displayNameKey": "Prop_DropPadH",          "type": { "numeric": true } },
+        "menuHoverBg":      { "displayName": "Menu hover",        "displayNameKey": "Prop_DropHoverBg",       "type": { "fill": { "solid": { "color": true } } } },
+        "menuSelectedBg":   { "displayName": "Menu selected",     "displayNameKey": "Prop_DropSelectedBg",    "type": { "fill": { "solid": { "color": true } } } },
+        "menuSelectedText": { "displayName": "Menu selected text","displayNameKey": "Prop_DropSelectedText",  "type": { "fill": { "solid": { "color": true } } } }
+      }
+    },
+    "numberFormat": {
+      "displayName": "Number format",
+      "displayNameKey": "Obj_NumberFormat",
+      "properties": {
+        "unit":     { "displayName": "Units",       "displayNameKey": "Prop_Unit", "type": { "enumeration": [
+          { "value": "1",          "displayName": "None"         },
+          { "value": "1000",       "displayName": "Thousands (K)"},
+          { "value": "1000000",    "displayName": "Millions (M)" },
+          { "value": "1000000000", "displayName": "Billions (B)" }
+        ]}},
+        "decimals": { "displayName": "Decimals",     "displayNameKey": "Prop_Decimals", "type": { "numeric": true } }
+      }
+    },
+    "state": {
+      "displayName": "State",
+      "properties": {
+        "compareOn": { "type": { "bool": true } },
+        "fromIdx":   { "type": { "numeric": true } },
+        "toIdx":     { "type": { "numeric": true } }
+      }
+    },
+    "animations": {
+      "displayName": "Animations",
+      "displayNameKey": "Obj_Animations",
+      "properties": {
+        "enabled":       { "displayName": "Enabled",             "displayNameKey": "Prop_AnimEnabled",  "type": { "bool": true } },
+        "duration":      { "displayName": "Duration (ms)",       "displayNameKey": "Prop_AnimDuration", "type": { "numeric": true } },
+        "easing":        { "displayName": "Easing",              "displayNameKey": "Prop_AnimEasing",   "type": { "enumeration": [
+          { "value": "polyOut",  "displayName": "Quart ease-out" },
+          { "value": "cubicOut", "displayName": "Cubic ease-out" },
+          { "value": "expoOut",  "displayName": "Expo ease-out"  },
+          { "value": "backOut",  "displayName": "Back ease-out (overshoot)" },
+          { "value": "elasticOut","displayName": "Elastic ease-out" },
+          { "value": "linear",   "displayName": "Linear" }
+        ]}},
+        "shimmer":       { "displayName": "Shimmer sweep",       "displayNameKey": "Prop_AnimShimmer",  "type": { "bool": true } },
+        "markerStagger": { "displayName": "Marker stagger (ms)", "displayNameKey": "Prop_AnimStagger",  "type": { "numeric": true } }
+      }
+    },
+    "dataLabels": {
+      "displayName": "Data labels",
+      "displayNameKey": "Obj_DataLabels",
+      "properties": {
+        "showA":            { "displayName": "Show Series A labels",     "displayNameKey": "Prop_DLShowA",            "type": { "bool": true } },
+        "positionA":        { "displayName": "Series A position",        "displayNameKey": "Prop_DLPositionA",        "type": { "enumeration": [
+          { "value": "auto",  "displayName": "Auto"   },
+          { "value": "above", "displayName": "Above"  },
+          { "value": "below", "displayName": "Below"  },
+          { "value": "left",  "displayName": "Left"   },
+          { "value": "right", "displayName": "Right"  }
+        ]}},
+        "colorA":           { "displayName": "Series A text color",      "displayNameKey": "Prop_DLColorA",           "type": { "fill": { "solid": { "color": true } } } },
+        "fontSizeA":        { "displayName": "Series A font size",       "displayNameKey": "Prop_DLFontSizeA",        "type": { "numeric": true } },
+        "boldA":            { "displayName": "Series A bold",            "displayNameKey": "Prop_DLBoldA",            "type": { "bool": true } },
+        "italicA":          { "displayName": "Series A italic",          "displayNameKey": "Prop_DLItalicA",          "type": { "bool": true } },
+        "bgColorA":         { "displayName": "Series A background",      "displayNameKey": "Prop_DLBgColorA",         "type": { "fill": { "solid": { "color": true } } } },
+        "bgOpacityA":       { "displayName": "Series A bg opacity",      "displayNameKey": "Prop_DLBgOpacityA",       "type": { "numeric": true } },
+        "offsetXA":         { "displayName": "Series A X offset",        "displayNameKey": "Prop_DLOffsetXA",         "type": { "numeric": true } },
+        "offsetYA":         { "displayName": "Series A Y offset",        "displayNameKey": "Prop_DLOffsetYA",         "type": { "numeric": true } },
+        "showF":            { "displayName": "Show Series B labels",     "displayNameKey": "Prop_DLShowF",            "type": { "bool": true } },
+        "positionF":        { "displayName": "Series B position",        "displayNameKey": "Prop_DLPositionF",        "type": { "enumeration": [
+          { "value": "auto",  "displayName": "Auto"   },
+          { "value": "above", "displayName": "Above"  },
+          { "value": "below", "displayName": "Below"  },
+          { "value": "left",  "displayName": "Left"   },
+          { "value": "right", "displayName": "Right"  }
+        ]}},
+        "colorF":           { "displayName": "Series B text color",      "displayNameKey": "Prop_DLColorF",           "type": { "fill": { "solid": { "color": true } } } },
+        "fontSizeF":        { "displayName": "Series B font size",       "displayNameKey": "Prop_DLFontSizeF",        "type": { "numeric": true } },
+        "boldF":            { "displayName": "Series B bold",            "displayNameKey": "Prop_DLBoldF",            "type": { "bool": true } },
+        "italicF":          { "displayName": "Series B italic",          "displayNameKey": "Prop_DLItalicF",          "type": { "bool": true } },
+        "bgColorF":         { "displayName": "Series B background",      "displayNameKey": "Prop_DLBgColorF",         "type": { "fill": { "solid": { "color": true } } } },
+        "bgOpacityF":       { "displayName": "Series B bg opacity",      "displayNameKey": "Prop_DLBgOpacityF",       "type": { "numeric": true } },
+        "offsetXF":         { "displayName": "Series B X offset",        "displayNameKey": "Prop_DLOffsetXF",         "type": { "numeric": true } },
+        "offsetYF":         { "displayName": "Series B Y offset",        "displayNameKey": "Prop_DLOffsetYF",         "type": { "numeric": true } },
+        "fontFamily":       { "displayName": "Font family",              "displayNameKey": "Prop_FontFamily",         "type": { "formatting": { "fontFamily": true } } },
+        "borderColor":      { "displayName": "Border color",             "displayNameKey": "Prop_DLBorderColor",      "type": { "fill": { "solid": { "color": true } } } },
+        "borderWidth":      { "displayName": "Border width",             "displayNameKey": "Prop_DLBorderWidth",      "type": { "numeric": true } },
+        "borderRadius":     { "displayName": "Border radius",            "displayNameKey": "Prop_DLBorderRadius",     "type": { "numeric": true } },
+        "padH":             { "displayName": "Horizontal padding",       "displayNameKey": "Prop_DLPadH",             "type": { "numeric": true } },
+        "padV":             { "displayName": "Vertical padding",         "displayNameKey": "Prop_DLPadV",             "type": { "numeric": true } },
+        "density":          { "displayName": "Density",                  "displayNameKey": "Prop_DLDensity",          "type": { "enumeration": [
+          { "value": "all",       "displayName": "All points"        },
+          { "value": "firstLast", "displayName": "First & last only" },
+          { "value": "everyN",    "displayName": "Every N points"    },
+          { "value": "endpoints", "displayName": "Endpoints per series" }
+        ]}},
+        "everyN":           { "displayName": "Every N points",           "displayNameKey": "Prop_DLEveryN",           "type": { "numeric": true } },
+        "avoidCollision":   { "displayName": "Auto collision avoidance", "displayNameKey": "Prop_DLAvoidCollision",   "type": { "bool": true } },
+        "showLeader":       { "displayName": "Show leader lines",        "displayNameKey": "Prop_DLShowLeader",       "type": { "bool": true } },
+        "leaderColor":      { "displayName": "Leader color",             "displayNameKey": "Prop_DLLeaderColor",      "type": { "fill": { "solid": { "color": true } } } },
+        "leaderWidth":      { "displayName": "Leader width",             "displayNameKey": "Prop_DLLeaderWidth",      "type": { "numeric": true } },
+        "leaderDash":       { "displayName": "Leader style",             "displayNameKey": "Prop_DLLeaderDash",       "type": { "enumeration": [
+          { "value": "solid",  "displayName": "Solid"  },
+          { "value": "dashed", "displayName": "Dashed" },
+          { "value": "dotted", "displayName": "Dotted" }
+        ]}},
+        "formatOverride":   { "displayName": "Format override",          "displayNameKey": "Prop_DLFormatOverride",   "type": { "text": true } },
+        "decimalsOverride": { "displayName": "Decimals override",        "displayNameKey": "Prop_DLDecimalsOverride", "type": { "numeric": true } }
+      }
+    }
+  },
+  "supportsHighlight": true,
+  "supportsKeyboardFocus": true,
+  "supportsLandingPage": true,
+  "supportsMultiVisualSelection": true,
+  "tooltips": {
+    "supportedTypes": { "default": true, "canvas": true }
+  },
+  "privileges": [],
+  "sorting": { "default": {} }
+}

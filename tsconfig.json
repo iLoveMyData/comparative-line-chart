@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "allowJs": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "ES6",
+    "sourceMap": true,
+    "outDir": "./.tmp/build/",
+    "moduleResolution": "node",
+    "declaration": true,
+    "isolatedModules": false,
+    "skipLibCheck": true,
+    "lib": [
+      "es2022",
+      "dom"
+    ]
+  },
+  "files": [
+    "./src/visual.ts",
+    "./src/settings.ts",
+    "./src/dataTransformer.ts"
+  ]
+}

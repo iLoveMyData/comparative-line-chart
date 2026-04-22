@@ -1,0 +1,21 @@
+# Build artefacts
+.tmp/
+dist/
+node_modules/
+*.pbiviz
+webpack.statistics*.html
+
+# Local state
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
+
+# pbiviz certificate (local, never committed)
+*.pfx
+*.key
+
+# Environment
+.env
+.env.local
