@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1366 768" width="1366" height="768" shape-rendering="geometricPrecision">
+  <rect width="1366" height="768" fill="#FFFFFF"/>
+
+  <!-- Title -->
+  <text x="60" y="62" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="30" font-weight="700" fill="#0B1E3B">Comparative Line Chart</text>
+
+  <!-- Row 1: Analysed period dropdowns (left) + Comparison ON (right) -->
+  <g font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="15" fill="#64748B">
+    <text x="60" y="108">Analyzed period:</text>
+    <!-- Dropdown "3" -->
+    <g transform="translate(188, 92)">
+      <rect x="0" y="0" width="54" height="26" rx="13" fill="#FFFFFF" stroke="#CBD5E1"/>
+      <text x="16" y="18" font-size="14" fill="#334155">3</text>
+      <path d="M 38 11 l 4 4 l 4 -4" stroke="#64748B" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <text x="250" y="110" font-size="16" fill="#64748B">—</text>
+    <!-- Dropdown "6" -->
+    <g transform="translate(268, 92)">
+      <rect x="0" y="0" width="54" height="26" rx="13" fill="#FFFFFF" stroke="#CBD5E1"/>
+      <text x="16" y="18" font-size="14" fill="#334155">6</text>
+      <path d="M 38 11 l 4 4 l 4 -4" stroke="#64748B" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+
+  <!-- Comparison toggle (ON) -->
+  <g font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif">
+    <text x="1226" y="108" font-size="15" fill="#1E90FF" font-weight="600">Comparison</text>
+    <g transform="translate(1304, 95)">
+      <rect x="0" y="0" width="40" height="22" rx="11" fill="#1E90FF"/>
+      <circle cx="29" cy="11" r="8" fill="#FFFFFF"/>
+    </g>
+  </g>
+
+  <!-- Row 2: Legend -->
+  <g font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="15" fill="#334155">
+    <rect x="60"  y="138" width="14" height="14" rx="2" fill="#1E90FF"/>
+    <text x="82"  y="151">Actual</text>
+    <rect x="148" y="138" width="14" height="14" rx="2" fill="#8BC34A"/>
+    <text x="170" y="151">Budget</text>
+  </g>
+
+  <!-- Comparison band -->
+  <rect x="250.1818181818182" y="200" width="237.27272727272725" height="480"
+        fill="#EEF2FF" stroke="none"/>
+  <!-- Handles -->
+  <g stroke="#334155" stroke-width="1.5">
+    <line x1="250.1818181818182" y1="200" x2="250.1818181818182" y2="680"/>
+    <line x1="487.45454545454544"   y1="200" x2="487.45454545454544"   y2="680"/>
+  </g>
+
+  <!-- Grid -->
+  <g stroke="#E2E8F0" stroke-width="1">
+    <line x1="92" y1="680" x2="962" y2="680"/>
+    <line x1="92" y1="560" x2="962" y2="560"/>
+    <line x1="92" y1="440" x2="962" y2="440"/>
+    <line x1="92" y1="320" x2="962" y2="320"/>
+    <line x1="92" y1="200" x2="962" y2="200"/>
+  </g>
+
+  <!-- Y axis labels -->
+  <g font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="14" fill="#94A3B8" text-anchor="end">
+    <text x="80" y="685">0</text>
+    <text x="80" y="565">200 000</text>
+    <text x="80" y="445">400 000</text>
+    <text x="80" y="325">600 000</text>
+    <text x="80" y="205">800 000</text>
+  </g>
+
+  <!-- X axis labels -->
+  <g font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="14" fill="#94A3B8" text-anchor="middle">
+    <text x="92.0" y="708">1</text>
+    <text x="171.1" y="708">2</text>
+    <text x="250.2" y="708">3</text>
+    <text x="329.3" y="708">4</text>
+    <text x="408.4" y="708">5</text>
+    <text x="487.5" y="708">6</text>
+    <text x="566.5" y="708">7</text>
+    <text x="645.6" y="708">8</text>
+    <text x="724.7" y="708">9</text>
+    <text x="803.8" y="708">10</text>
+    <text x="882.9" y="708">11</text>
+    <text x="962.0" y="708">12</text>
+  </g>
+
+  <!-- Curves: dashed outside range, solid within -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3">
+    <path d="M 92.00 650.00 C 105.18 644.90, 144.73 629.70, 171.09 619.40 C 197.45 609.10, 237.00 593.40, 250.18 588.20 M 487.45 487.40 C 500.64 481.40, 540.18 463.60, 566.55 451.40 C 592.91 439.20, 619.27 426.70, 645.64 414.20 C 672.00 401.70, 698.36 389.20, 724.73 376.40 C 751.09 363.60, 777.45 350.70, 803.82 337.40 C 830.18 324.10, 856.55 310.60, 882.91 296.60 C 909.27 282.60, 948.82 260.60, 962.00 253.40" stroke="#8BC34A" stroke-dasharray="6 6" stroke-opacity="0.75"/>
+    <path d="M 92.00 651.20 C 105.18 646.00, 144.73 630.70, 171.09 620.00 C 197.45 609.30, 237.00 592.50, 250.18 587.00 M 487.45 476.00 C 500.64 471.80, 540.18 460.50, 566.55 450.80 C 592.91 441.10, 619.27 429.30, 645.64 417.80 C 672.00 406.30, 698.36 395.00, 724.73 381.80 C 751.09 368.60, 777.45 354.30, 803.82 338.60 C 830.18 322.90, 856.55 305.60, 882.91 287.60 C 909.27 269.60, 948.82 240.10, 962.00 230.60" stroke="#1E90FF"  stroke-dasharray="6 6" stroke-opacity="0.75"/>
+    <path d="M 250.18 588.20 C 263.36 582.80, 302.91 566.80, 329.27 555.80 C 355.64 544.80, 382.00 533.60, 408.36 522.20 C 434.73 510.80, 474.27 493.20, 487.45 487.40"   stroke="#8BC34A"/>
+    <path d="M 250.18 587.00 C 263.36 581.20, 302.91 564.20, 329.27 552.20 C 355.64 540.20, 382.00 527.70, 408.36 515.00 C 434.73 502.30, 474.27 482.50, 487.45 476.00"   stroke="#1E90FF"/>
+  </g>
+
+  <!-- Endpoint markers at the two handles -->
+  <g>
+    <circle cx="250.1818181818182" cy="587" r="7" fill="#FFFFFF" stroke="#1E90FF"  stroke-width="2.5"/>
+    <circle cx="487.4545454545455"   cy="476"   r="7" fill="#FFFFFF" stroke="#1E90FF"  stroke-width="2.5"/>
+    <circle cx="250.1818181818182" cy="588.2" r="7" fill="#FFFFFF" stroke="#8BC34A" stroke-width="2.5"/>
+    <circle cx="487.4545454545455"   cy="487.4"   r="7" fill="#FFFFFF" stroke="#8BC34A" stroke-width="2.5"/>
+  </g>
+
+  <!-- Side panel separator -->
+  <line x1="1000" y1="190" x2="1000" y2="680"
+        stroke="#E2E8F0" stroke-width="1"/>
+
+  <!-- Side panel -->
+  <g font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif">
+    <text x="1020" y="218" font-size="22" font-weight="700" fill="#0B1E3B">Over this period</text>
+
+    <text x="1020" y="290"  font-size="15" fill="#64748B">Actual</text>
+    <text x="1020" y="332" font-size="36" font-weight="700" fill="#0B1E3B">240 000</text>
+
+    <text x="1020" y="418" font-size="15" fill="#64748B">Budget</text>
+    <text x="1020" y="460" font-size="36" font-weight="700" fill="#0B1E3B">220 000</text>
+
+    <text x="1020" y="546" font-size="15" fill="#64748B">Delta</text>
+    <!-- Up-arrow + delta value -->
+    <g transform="translate(1020, 588)">
+      <path d="M 0 0 l 11 -14 l 11 14 z" fill="#4CAF50"/>
+      <text x="30" y="0" font-size="32" font-weight="700" fill="#4CAF50">+20 000 (9,1%)</text>
+    </g>
+  </g>
+</svg>
