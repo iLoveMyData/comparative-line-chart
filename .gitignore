@@ -10,6 +10,13 @@ webpack.statistics*.html
 assets/marketplace/package.json
 assets/marketplace/package-lock.json
 
+# Raw high-resolution captures + legacy SVG mockups — kept locally for
+# regeneration, not committed (the final 1366x768 PNGs are the shipped assets)
+assets/marketplace/screenshot-raw-*.png
+assets/marketplace/screenshot-1.svg
+assets/marketplace/screenshot-2.svg
+assets/marketplace/build-screenshots.mjs
+
 # Local state
 .vscode/
 .idea/
