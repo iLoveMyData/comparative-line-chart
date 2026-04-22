@@ -51,7 +51,34 @@ Two equivalent ways to feed the visual:
 - A **date slicer** on `Month` — slide it to 6 months and watch the cumul re-baseline.
 - A **table** with `Month`, `Actual`, `Budget` next to the visual — click rows to cross-filter.
 
-Save as **`ComparativeLineChart-sample.pbix`** — this is the file Microsoft asks for at certification time.
+### Required: hints & tips inside the .pbix
+
+Microsoft's AppSource validation (policy **1180.2.3.1**) asks the sample file to
+contain **written guidance** on how to use the visual. Add the following as
+**text boxes** on the report canvas (Home → Text box) before saving:
+
+1. **Title text box** (top of the page)
+   > **Comparative Line Chart — Sales vs Budget demo**
+   > Drag the two handles on the chart to isolate any sub-period; the side panel
+   > recomputes the cumulative totals and the delta for you. Toggle the pill
+   > next to the legend to switch comparison mode on/off.
+
+2. **Below the chart** (step-by-step)
+   > 1. Click the pill → **Comparison** ON.
+   > 2. Drag the **"from"** handle to **Jul 2024** and the **"to"** handle to
+   >    **Sep 2024** → the side panel shows a **−15 %** delta (the supply-chain
+   >    dip).
+   > 3. Move **"to"** to **Dec 2024** → delta jumps to **+23 %** (Black Friday
+   >    + holidays).
+   > 4. Use the **Month** slicer to filter the dataset — the chart rebases.
+
+3. **Formatting hint** (next to the visual)
+   > The **Format pane** exposes 13 cards. Try **Data labels → Series A / B**
+   > to reveal per-point values with automatic collision avoidance, or
+   > **Axes & grid → Y ticks** to rebalance the grid density.
+
+Save as **`ComparativeLineChart-sample.pbix`** — this is the file Microsoft asks
+for at certification time.
 
 ---
 
