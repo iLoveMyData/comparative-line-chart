@@ -5,6 +5,11 @@ node_modules/
 *.pbiviz
 webpack.statistics*.html
 
+# Marketplace render tooling is local-only (SVG + PNG outputs are committed,
+# not the npm helper used to rasterize them)
+assets/marketplace/package.json
+assets/marketplace/package-lock.json
+
 # Local state
 .vscode/
 .idea/

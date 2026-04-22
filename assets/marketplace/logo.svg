@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" shape-rendering="geometricPrecision">
+  <defs>
+    <!-- Background: deep indigo -> violet -> fuchsia -->
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"  stop-color="#4F46E5"/>
+      <stop offset="55%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#C026D3"/>
+    </linearGradient>
+
+    <!-- Soft vignette glow -->
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.75">
+      <stop offset="0%"  stop-color="#ffffff" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Comparison band vertical fade (fades out top + bottom) -->
+    <linearGradient id="bandFade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="18%"  stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="82%"  stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Series A gradient (cyan → pink, the "winning" curve) -->
+    <linearGradient id="gradA" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%"  stop-color="#22D3EE"/>
+      <stop offset="100%" stop-color="#F0ABFC"/>
+    </linearGradient>
+
+    <!-- Series B gradient (amber → orange, the reference) -->
+    <linearGradient id="gradB" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"  stop-color="#FDE68A"/>
+      <stop offset="100%" stop-color="#FB923C"/>
+    </linearGradient>
+
+    <!-- Soft drop shadow for curves -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2.4"/>
+      <feOffset dx="0" dy="2"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.38"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <!-- Rounded tile clip -->
+    <clipPath id="tileClip">
+      <rect x="0" y="0" width="300" height="300" rx="60" ry="60"/>
+    </clipPath>
+  </defs>
+
+  <!-- Base tile -->
+  <rect x="0" y="0" width="300" height="300" rx="60" ry="60" fill="url(#bg)"/>
+
+  <g clip-path="url(#tileClip)">
+    <!-- Radial highlight -->
+    <rect x="0" y="0" width="300" height="300" fill="url(#glow)"/>
+
+    <!-- Faint baseline grid -->
+    <g stroke="#ffffff" stroke-opacity="0.09" stroke-width="1">
+      <line x1="40" y1="220" x2="260" y2="220"/>
+      <line x1="40" y1="170" x2="260" y2="170"/>
+      <line x1="40" y1="120" x2="260" y2="120"/>
+    </g>
+
+    <!-- Comparison band: soft vertical highlight between the two handles -->
+    <rect x="118" y="45" width="94" height="210" fill="url(#bandFade)"/>
+
+    <!-- Range handles (thin vertical lines capped at grid area) -->
+    <g stroke="#ffffff" stroke-opacity="0.65" stroke-width="2.5" stroke-linecap="round">
+      <line x1="118" y1="80" x2="118" y2="230"/>
+      <line x1="212" y1="80" x2="212" y2="230"/>
+    </g>
+
+    <!-- Curves -->
+    <g fill="none" stroke-linecap="round" stroke-linejoin="round" filter="url(#shadow)">
+      <!-- Series B (reference, steady growth) -->
+      <path d="M 40 210 C 80 202, 110 192, 140 182 S 200 168, 230 162 S 260 158, 260 155"
+            stroke="url(#gradB)" stroke-width="11" stroke-opacity="0.95"/>
+      <!-- Series A (actual, accelerating) -->
+      <path d="M 40 218 C 75 205, 100 190, 130 178 S 175 138, 212 102 S 250 72, 260 62"
+            stroke="url(#gradA)" stroke-width="13"/>
+    </g>
+
+    <!-- Endpoint markers on Series A at the two handles -->
+    <g>
+      <circle cx="118" cy="180" r="9" fill="#ffffff"/>
+      <circle cx="118" cy="180" r="5" fill="#22D3EE"/>
+      <circle cx="212" cy="103" r="9" fill="#ffffff"/>
+      <circle cx="212" cy="103" r="5" fill="#F0ABFC"/>
+    </g>
+
+    <!-- Vertical connector between the two endpoint markers: shows the delta visually -->
+    <g opacity="0.55">
+      <line x1="212" y1="107" x2="212" y2="172"
+            stroke="#ffffff" stroke-width="2" stroke-linecap="round"
+            stroke-dasharray="3 4"/>
+    </g>
+  </g>
+
+  <!-- Inner hairline border -->
+  <rect x="0.75" y="0.75" width="298.5" height="298.5" rx="59.25" ry="59.25"
+        fill="none" stroke="#ffffff" stroke-opacity="0.10" stroke-width="1.5"/>
+</svg>
